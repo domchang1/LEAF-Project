@@ -18,11 +18,17 @@ potas = b"\x01\x03\x00\x20\x00\x01\x85\xc0"
 
 
 def read(inp_):
+    #Maybe try setting RE/DE to high
+	uart0.setRTS(True)
+	uart0.setDTR(True)
+	time.sleep(1)
 	if (uart0.write(inp_)):
 		tx = uart0.write(inp_)
 		#print(inp_)
 		print("Sent Data : " + str(tx))
-		rx = uart0.readline()
+		uart0.setRTS(False)
+		uart0.setDTR(False)
+		rx = uart0.read(8)
 		print("Received data : " + str(rx))
 		val = int.from_bytes(rx, byteorder='big')
 		#val = ((int.from_bytes(rx[3], 'big')) << 8) + (int.from_bytes(rx[4], 'big'))
