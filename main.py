@@ -1,33 +1,39 @@
 import serial
 import time
+from gpiozero import OutputDevice
 
 uart0 = serial.Serial(port='/dev/ttyS0', baudrate = 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize=serial.EIGHTBITS, timeout=1)
-#uart0.open()
 
 # nitro = b'0x01,0x03, 0x00, 0x1e, 0x00, 0x01, 0xe4, 0x0c'
 # phosp = b'0x01,0x03, 0x00, 0x1f, 0x00, 0x01, 0xb5, 0xcc'
 # potas = b'0x01,0x03, 0x00, 0x20, 0x00, 0x01, 0x85, 0xc0'
 
-# nitro = [0x1h, 0x3h, 0x0h, 0x1eh, Ox0h, 0x1h, 0xe4h, 0xch]
-# phosp = [0x1h, 0x3h, 0x0h, 0x1fh, 0x0h, 0x1h, 0xb5h, 0xcch]
-# potas = [0x1h,0x3h, 0x0h, 0x20h, 0x0h, 0x01h, 0x85h, 0xc0h]
+nitro = [0x01,0x03, 0x00, 0x1e, 0x00, 0x01, 0xe4, 0x0c]
+phosp = [0x01,0x03, 0x00, 0x1f, 0x00, 0x01, 0xb5, 0xcc]
+potas = [0x01,0x03, 0x00, 0x20, 0x00, 0x01, 0x85, 0xc0]
 
-nitro = b"\x01\x03\x00\x1e\x00\x01\xe4\x0c"
-phosp = b"\x01\x03\x00\x1f\x00\x01\xb5\xcc"
-potas = b"\x01\x03\x00\x20\x00\x01\x85\xc0"
+# nitro = b"\x01\x03\x00\x1e\x00\x01\xe4\x0c"
+# phosp = b"\x01\x03\x00\x1f\x00\x01\xb5\xcc"
+# potas = b"\x01\x03\x00\x20\x00\x01\x85\xc0"
+nitro = bytearray(nitro)
+phosp = bytearray(phosp)
+potas = bytearray(potas)
 
+re = OutputDevice(17)
+de = OutputDevice(27)
 
 def read(inp_):
     #Maybe try setting RE/DE to high
-	uart0.setRTS(True)
-	uart0.setDTR(True)
-	time.sleep(1)
-	if (uart0.write(inp_)):
-		tx = uart0.write(inp_)
-		#print(inp_)
-		print("Sent Data : " + str(tx))
-		uart0.setRTS(False)
-		uart0.setDTR(False)
+	re.on()
+	de.on()
+	time.sleep(0.1)
+	if (uart0.write(inp_) == 8):
+		#tx = uart0.write(inp_)
+		uart0.flush()
+		#print("Sent Data : " + str(tx))
+		time.sleep(0.1)
+		re.off()
+		de.off()
 		rx = uart0.read(8)
 		print("Received data : " + str(rx))
 		val = int.from_bytes(rx, byteorder='big')
